@@ -463,8 +463,8 @@ class MCPClient:
                         pass
 
                 try:
-                    should_execute = await self.hil_manager.request_tool_confirmation(
-                        tool_name, tool_args
+                    should_execute, rejection_reason = await self.hil_manager.request_tool_confirmation(
+                        tool_name, tool_args, return_rejection_reason=True
                     )
                 except AbortQueryException:
                     # User aborted - set abort flag so monitor exits cleanly
@@ -474,7 +474,12 @@ class MCPClient:
                     self.monitor_paused = False
 
                 if not should_execute:
-                    tool_response = "Tool call was skipped by user"
+                    # Use rejection reason if provided
+                    if rejection_reason:
+                        tool_response = f"Tool call was skipped by user. Reason: {rejection_reason}"
+                    else:
+                        tool_response = "Tool call was skipped by user"
+                    
                     self.tool_display_manager.display_tool_response(tool_name, tool_args, tool_response, show=self.show_tool_execution)
                     messages.append({
                         "role": "tool",

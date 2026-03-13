@@ -29,7 +29,7 @@ class TestHumanInTheLoopManagerSession(unittest.IsolatedAsyncioTestCase):
         manager.set_session_auto_execute(True)
 
         # Should return True without prompting
-        result = await manager.request_tool_confirmation("test_tool", {})
+        result, _ = await manager.request_tool_confirmation("test_tool", {})
         assert result is True
 
     async def test_request_tool_confirmation_hil_disabled(self):
@@ -37,7 +37,7 @@ class TestHumanInTheLoopManagerSession(unittest.IsolatedAsyncioTestCase):
         manager = HumanInTheLoopManager(console_mock)
         manager.set_enabled(False)
 
-        result = await manager.request_tool_confirmation("test_tool", {})
+        result, _ = await manager.request_tool_confirmation("test_tool", {})
         assert result is True
 
     def test_handle_user_choice_session(self):
@@ -45,7 +45,7 @@ class TestHumanInTheLoopManagerSession(unittest.IsolatedAsyncioTestCase):
         manager = HumanInTheLoopManager(console_mock)
 
         with patch('rich.prompt.Prompt.ask', return_value='y'):
-            result = manager._handle_user_choice('session')
+            result, _ = manager._handle_user_choice('session')
 
         assert result is True
         assert manager._session_auto_execute is True

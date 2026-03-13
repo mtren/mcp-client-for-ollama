@@ -40,6 +40,7 @@
   - [Advanced Model Configuration](#advanced-model-configuration)
   - [Server Reloading for Development](#server-reloading-for-development)
   - [Human-in-the-Loop (HIL) Tool Execution](#human-in-the-loop-hil-tool-execution)
+  - ✨**NEW** [Rejection Reasons](#rejection-reasons-communicating-with-your-llm)
   - ✨**NEW** [MCP Prompts](#mcp-prompts)
   - [Performance Metrics](#performance-metrics)
   - ✨**NEW** [History Management](#history-management)
@@ -401,13 +402,40 @@ When HIL is enabled, you'll see a confirmation prompt before each tool execution
 When prompted, you can choose from the following options:
 
 - **y/yes**: Execute this specific tool call
-- **n/no**: Skip this tool call and continue with the query
+- **n/no**: Skip this tool call and continue with the query. The system will prompt for a **rejection reason** to provide feedback to the LLM about why the tool was rejected. This helps the model learn and avoid similar requests in the future. Common rejection reasons include:
+  - Wrong tool (tool doesn't match what you need)
+  - Timing not right (execute later)
+  - Don't need that info (skip this information gathering)
+  - Already have it (information already available)
+  - Prefer different tool (another tool is more appropriate)
+  - Custom reason (type your own explanation)
 - **s/session**: Execute this and all subsequent tool calls for the current query without further prompts
 - **d/disable**: Permanently disable HIL confirmations (can be re-enabled with `hil` command)
 - **a/abort**: Abort the entire query immediately without saving to history
 
 > [!TIP]
 > The **session** option is particularly useful when the model needs to execute multiple tools in sequence. Instead of confirming each one individually, you can approve all tools for the current query session, then HIL will reset automatically for the next query.
+
+#### Rejection Reasons: Communicating with Your LLM
+
+When you select **n/no** to reject a tool call, the system now asks for a **rejection reason**. This feedback is sent back to the LLM as part of the tool response, helping it understand why certain tools are being rejected and improving its future tool selection decisions.
+
+**Why Rejection Reasons Matter:**
+- 📚 **LLM Learning**: The model receives explicit feedback about why tools are rejected
+- 🔍 **Better Decisions**: Helps the LLM make more appropriate tool choices in subsequent attempts
+- 🎯 **Targeted Feedback**: Different rejection types provide different learning signals to the model
+- 💡 **Transparent Communication**: You can provide custom explanations if none of the preset reasons fit
+
+**Available Rejection Reasons:**
+1. **Wrong tool** - The tool name or purpose doesn't match what you need
+2. **Timing not right** - Execute this tool later in the conversation
+3. **Don't need that info** - Skip this information gathering step
+4. **Already have it** - The information is already available from previous context
+5. **Prefer different tool** - Another available tool would be more appropriate
+6. **Custom reason** - Type your own explanation for why this tool is being rejected
+
+> [!TIP]
+> Providing rejection reasons creates a feedback loop that can significantly improve the LLM's tool selection accuracy over time. The more specific your rejection reasons, the better the model learns to avoid similar mistakes in future interactions.
 
 ### Human-in-the-Loop (HIL) Configuration
 
